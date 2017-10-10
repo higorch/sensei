@@ -2,10 +2,6 @@
 
 class Sensei_Class_Modules_Test extends WP_UnitTestCase {
 
-	private $module_taxonomy;
-
-	private $module_id;
-
     /**
      * Constructor function
      */
@@ -20,19 +16,8 @@ class Sensei_Class_Modules_Test extends WP_UnitTestCase {
      * every single test in this class
      */
     public function setup(){
-		$this->factory = new Sensei_Factory();
 
-		// Use the taxonomy for Modules
-		$this->module_taxonomy = Sensei()->modules->taxonomy;
-
-		// Set up a new module to use for some tests
-		$new_term = wp_insert_term( 'My New Module', $this->module_taxonomy );
-		$this->module_id = $new_term[ 'term_id' ];
     }// end function setup()
-
-	public function teardown() {
-		wp_delete_term( $this->module_id, $this->module_taxonomy );
-	}
 
     /**
      * Testing the quiz class to make sure it is loaded
@@ -91,76 +76,5 @@ class Sensei_Class_Modules_Test extends WP_UnitTestCase {
         $this->assertTrue( 2 == count( $term_authors ), 'The function should admin user for normal module term.' );
 
     }
-
-	/**
-	 * Testing Sensei_Core_Modules::save_lesson_module
-	 */
-	public function testSetLessonModuleWithGivenCourse() {
-
-		// Fetch a lesson and course
-		$lesson = $this->getLesson();
-		$course_id = $this->factory->get_random_course_id();
-
-		/*
-		 * When the module belongs to the course, we should be able to set it
-		 * on the lesson.
-		 */
-
-		// Set the module on the course
-		wp_set_object_terms( $course_id, $this->module_id, $this->module_taxonomy );
-
-		Sensei()->modules->set_lesson_module( $lesson->ID, $this->module_id, $course_id );
-		$this->assertTrue( has_term( $this->module_id, $this->module_taxonomy, $lesson ) );
-
-		/*
-		 * When the module does not belong to the course, we should be unset
-		 * the lesson's module.
-		 */
-
-		// Remove the module from the course
-		wp_delete_object_term_relationships( $course_id, $this->module_taxonomy );
-
-		Sensei()->modules->set_lesson_module( $lesson->ID, $this->module_id, $course_id );
-		$this->assertEquals( wp_get_object_terms( $lesson->ID, $this->module_taxonomy ), array() );
-
-	}
-
-	public function testSaveLessonModuleWithoutGivenCourse() {
-
-		// Fetch a lesson and course
-		$lesson = $this->getLesson();
-		$course_id = $this->factory->get_random_course_id();
-
-		// Set the lesson on the course
-		update_post_meta( $lesson->ID, '_lesson_course', $course_id );
-
-		/*
-		 * When the module belongs to the course, we should be able to set it
-		 * on the lesson.
-		 */
-
-		// Set the module on the course
-		wp_set_object_terms( $course_id, $this->module_id, Sensei()->modules->taxonomy );
-
-		Sensei()->modules->set_lesson_module( $lesson->ID, $this->module_id );
-		$this->assertTrue( has_term( $this->module_id, $this->module_taxonomy, $lesson ) );
-
-		/*
-		 * When the module does not belong to the course, we should unset the
-		 * lesson's module.
-		 */
-
-		wp_delete_object_term_relationships( $course_id, $this->module_taxonomy );
-
-		Sensei()->modules->set_lesson_module( $lesson->ID, $this->module_id );
-		$this->assertEquals( wp_get_object_terms( $lesson->ID, $this->module_taxonomy ), array() );
-	}
-
-	// Helpers
-
-	protected function getLesson() {
-		$lesson_id = $this->factory->get_random_lesson_id();
-		return get_post( $lesson_id );
-	}
 
 } // end class
