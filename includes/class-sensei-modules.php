@@ -269,7 +269,8 @@ class Sensei_Core_Modules
 		$course_id = isset( $_POST[ $lesson_course_id_key ] ) ? $_POST[ $lesson_course_id_key ] : NULL;
 
 		// Set the module on the lesson
-		$this->set_lesson_module( $post_id, $module_id, $course_id );
+        $lesson_modules = new Sensei_Core_Lesson_Modules( $post_id );
+        $lesson_modules->set_module( $module_id, $course_id );
 
         return true;
     }
