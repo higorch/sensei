@@ -112,9 +112,6 @@ class Sensei_Core_Modules
         // remove the default modules  metabox
         add_action('admin_init',array( 'Sensei_Core_Modules' , 'remove_default_modules_box' ));
 
-        // Ensure we have the class we need
-        require_once( 'class-sensei-lesson-modules.php' );
-
     } // end constructor
 
     /**
